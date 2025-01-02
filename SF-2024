@@ -1,0 +1,1592 @@
+import yfinance as yf
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Download Eli Lilly stock data for the specified period
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Extract adjusted closing prices
+adj_close_prices = LLY['Adj Close']
+
+# Create a line chart
+plt.figure(figsize=(10, 6))
+plt.plot(adj_close_prices.index, adj_close_prices, color='red')
+
+# Customizing x-axis labels for December 31 of each year
+date_labels = pd.date_range(start='1997-12-31', end='2023-12-31', freq='YE-DEC')
+formatted_labels = [f'Dec-{date.year}' for date in date_labels]
+# Add label and rotate them 
+plt.xticks(date_labels, formatted_labels, rotation=45)
+
+plt.title('Eli Lilly Daily Adjusted Closing Prices (1997-2023)')
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.grid(True)
+
+# Save the plot in png format
+plt.savefig('Eli lilly_end1997_end_2023_daily.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+first_price = adj_close_prices.iloc[0]
+print(f"Premier prix ajusté (31 décembre 1997) : {first_price:.2f}")
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Download Eli Lily stock data for the specified period
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Extract daily log returns
+log_returns_daily = np.log(LLY['Adj Close'] / LLY['Adj Close'].shift(1))
+
+# Resample data to annual frequency
+annual_data = LLY['Adj Close'].resample('YE').last()
+
+# Calculate annual log returns (remove the first obs which is a NaN)
+log_returns_annual = np.log(annual_data / annual_data.shift(1)).dropna()
+
+monthly_data = LLY['Adj Close'].resample('ME').last()
+
+# Calculate monthly log returns (remove the first obs which is a NaN)
+log_returns_monthly = np.log(monthly_data / monthly_data.shift(1)).dropna()
+
+# Creating two plots
+fig, axs = plt.subplots(3, 1, figsize=(10, 10))
+
+# Plot of daily log returns
+axs[0].plot(log_returns_daily.index, log_returns_daily, color='red')
+axs[0].axhline(y=0, color='black', linestyle='--')
+axs[0].set_title('Log Daily Returns - Eli Lilly Stock (1997-2023)')
+axs[0].set_xlabel('Date')
+axs[0].set_ylabel(r'$r_t$', rotation=0, labelpad=15)
+axs[0].grid(True)
+
+# Add "Dec-Year" at the end of each year (first plot)
+date_labels = pd.date_range(start="1997-12-31", end="2023-12-31", freq='YE-DEC')
+formatted_labels = [f'Dec-{date.year}' for date in date_labels]
+axs[0].set_xticks(date_labels)
+axs[0].set_xticklabels(formatted_labels, rotation=45)
+
+
+# Plot of monthly log returns
+axs[1].plot(log_returns_monthly.index, log_returns_monthly, color='black')
+axs[1].axhline(y=0, color='black', linestyle='--')
+axs[1].set_title('Monthly Log Returns - Eli Lilly Stock (1997-2023)')
+axs[1].set_xlabel('Date')
+axs[1].set_ylabel(r'$r_t$', rotation=0, labelpad=15)
+axs[1].grid(True)
+
+# Aff "Dec-Year" at the end of each year (third plot)
+axs[1].set_xticks(date_labels)
+axs[1].set_xticklabels(formatted_labels, rotation=45)
+
+# Plot of annual log returns
+axs[2].plot(log_returns_annual.index, log_returns_annual, color='black')
+axs[2].axhline(y=0, color='black', linestyle='--')
+axs[2].set_title('Annual Log Returns - Eli Lilly Stock (1997-2023)')
+axs[2].set_xlabel('Date')
+axs[2].set_ylabel(r'$r_t$', rotation=0, labelpad=15)
+axs[2].grid(True)
+
+# Add "Dec-Year" at the end of each year (second plot)
+axs[2].set_xticks(date_labels)
+axs[2].set_xticklabels(formatted_labels, rotation=45)
+
+
+
+# Adjust spacing between plots
+plt.tight_layout()
+
+# Save the plot in png format
+plt.savefig('Eli Lilly_end1997_2108_logret.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+
+sample_length_days = len(LLY)
+sample_length_months = sample_length_days // 30  # Rough approximation
+sample_length_years = sample_length_days // 365  # Rough approximation
+
+# Initial and final dates of the sample
+initial_date = LLY.index.min()
+final_date = LLY.index.max()
+
+# Stock market and country information
+# Eli Lilly is traded on the New York Stock Exchange (NYSE), USA
+stock_market = "New York Stock Exchange (NYSE)"
+country = "United States"
+
+# Print the results
+print(f"Length of sample: {sample_length_days} days, approximately {sample_length_months} months, and {sample_length_years} years")
+print(f"Initial date: {initial_date.date()}")
+print(f"Final date: {final_date.date()}")
+print(f"Stock market: {stock_market}")
+print(f"Country: {country}")
+
+data_dict = {
+    "Length of Sample (Days)": [sample_length_days],
+    "Approx. Length (Months)": [sample_length_months],
+    "Approx. Length (Years)": [sample_length_years],
+    "Initial Date": [initial_date.date()],
+    "Final Date": [final_date.date()],
+    "Stock Market": [stock_market],
+    "Country": [country],
+}
+
+# Création du DataFrame à partir du dictionnaire
+df_info = pd.DataFrame(data_dict)
+df_info
+
+
+import pandas as pd
+import dataframe_image as dfi
+dfi.export( df_info, 'dfinfo.png')
+
+# 1. 
+statistics_dict = {}
+
+# 2.
+statistics_dict = {
+    key: multi_fun(data.iloc[1:]) 
+    for key, data in X.items()
+}
+# apply multi_fun to each returns ("series" in pandas) 
+# which is located in one of the four key of our dictionary X   
+# 3.
+statistics_df = pd.DataFrame(statistics_dict)
+statistics_df
+
+# import repository (packages/libraries/modules)
+import pandas as pd # we rename pandas for convenience as pd
+import numpy as np
+import yfinance as yf
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from statsmodels.graphics.tsaplots import plot_acf # import this function from this submodule
+import statsmodels.api as sm
+import scipy.stats as stats
+from scipy.stats import gaussian_kde, norm, iqr, skew, kurtosis, jarque_bera, kstest, anderson
+from statsmodels.stats.diagnostic import lilliefors
+import scipy.signal as ss
+import pylab
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# extract the closing prices
+Pt_d_all = LLY["Adj Close"]
+Pt_d_all = Pt_d_all.rename('Pt.d')
+# mutate the Index into a DatetimeIndex
+Pt_d_all.index = pd.to_datetime(Pt_d_all.index)  
+Pt_d_all.head()
+
+pt_d_all = np.log(Pt_d_all)
+pt_d_all = pt_d_all.rename('pt.d')
+pt_d_all.head()
+
+pt_w_all = pt_d_all.resample('W').last()
+pt_m_all = pt_d_all.resample('M').last()
+pt_y_all = pt_d_all.resample('Y').last()
+# and rename them:
+pt_w_all = pt_w_all.rename('pt.w.all')
+pt_m_all = pt_m_all.rename('pt.m.all')
+pt_y_all = pt_y_all.rename('pt.y.all')
+
+rt_d_all_temp = pt_d_all.diff()
+rt_d_all_temp
+
+rt_d_all = pt_d_all.diff().dropna() #dropna remove the first NaN
+rt_w_all = pt_w_all.diff().dropna()  
+rt_m_all = pt_m_all.diff().dropna()     
+rt_y_all = pt_y_all.diff().dropna()      
+
+# and rename them: 
+rt_d_all = rt_d_all.rename('rt_d_all')
+rt_w_all = rt_w_all.rename('rt_w_all')
+rt_m_all = rt_m_all.rename('rt_m_all')
+rt_y_all = rt_y_all.rename('rt_y_all')
+rt_d_all.head()
+
+# define the interval of dates
+ss_start_date = pd.to_datetime('1997-12-31')
+ss_end_date = pd.to_datetime('2023-12-31')
+
+# Select the interval using loc (only for pandas series)
+Pt_d = Pt_d_all.loc[ss_start_date:ss_end_date]
+pt_d = pt_d_all.loc[ss_start_date:ss_end_date]
+pt_w = pt_w_all.loc[ss_start_date:ss_end_date]
+pt_m = pt_m_all.loc[ss_start_date:ss_end_date]
+rt_d = rt_d_all.loc[ss_start_date:ss_end_date]
+rt_m = rt_m_all.loc[ss_start_date:ss_end_date]
+rt_y = rt_y_all.loc[ss_start_date:ss_end_date]
+
+
+# X contains returns at different frequencies
+X = {
+    'daily': rt_d,
+    'monthly': rt_m,
+    'annual': rt_y
+}
+
+def multi_fun(x):
+    stat_tab = {
+        'Mean': round(np.mean(x) * 100,5),
+        'St.Deviation': round(np.std(x) * 100,5),
+        'Diameter.C.I.Mean': round(1.96 * np.sqrt(np.var(x) / len(x)) * 100,5),
+        'Skewness': round(skew(x),5),
+        'Kurtosis': round(kurtosis(x),5),
+        'Excess.Kurtosis': round(kurtosis(x) - 3,5),
+        'Min': round(np.min(x) * 100,5),
+        'Quant5': round(np.quantile(x, 0.05) * 100,5),
+        'Quant25': round(np.quantile(x, 0.25) * 100,5),
+        'Median': round(np.quantile(x, 0.50) * 100,5),
+        'Quant75': round(np.quantile(x, 0.75) * 100,5),
+        'Quant95': round(np.quantile(x, 0.95) * 100,5),
+        'Max': round(np.max(x) * 100,5),
+        'Jarque.Bera.stat': round(jarque_bera(x)[0],5),
+        'Jarque.Bera.pvalue.X100': round(jarque_bera(x)[1] *100,5),
+        'Lillie.test.stat': round(lilliefors(x)[0],5),
+        'Lillie.test.pvalue.X100': round(lilliefors(x)[1] * 100,5),
+        'N.obs': len(x)
+    }
+    return stat_tab 
+
+print("daily:",lilliefors(rt_d))
+print("monthly:",lilliefors(rt_m))
+print("ann:",lilliefors(rt_y))
+
+# 1. 
+statistics_dict = {}
+
+# 2.
+statistics_dict = {
+    key: multi_fun(data.iloc[1:]) 
+    for key, data in X.items()
+}
+# apply multi_fun to each returns ("series" in pandas) 
+# which is located in one of the four key of our dictionary X   
+# 3.
+statistics_df = pd.DataFrame(statistics_dict)
+statistics_df
+# 4.
+
+import pandas as pd
+import dataframe_image as dfi
+dfi.export( statistics_df , 'table.png')
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+
+log_price_daily = np.log(LLY['Adj Close'])
+
+
+log_price_previous = log_price_daily.shift(1)
+
+
+plt.figure(figsize=(10, 6))
+plt.scatter(log_price_previous, log_price_daily, color='blue')
+plt.plot([3, 7], [3, 7], color='red', linestyle='--')
+plt.title('$p_t$ vs. $p_{t-1}$ of Eli Lilly (1997-2023)')
+plt.xlabel(r'LAGGED $\log(p_{t-1})$')
+plt.ylabel(r'$\log(p_t)$')
+plt.grid(True)
+
+plt.savefig('LLY_pt_d_1997_2023.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+from statsmodels.tsa.stattools import acf
+from scipy.stats import norm
+
+# Download Eli Lilly data for the specified period
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Extract daily log prices
+log_price_daily = np.log(LLY['Adj Close'])
+
+# Calculate empirical autocorrelation
+lags = 40
+acf_values = acf(log_price_daily, nlags=lags)
+
+# Calculate Bartlett intervals
+Bart_Int = 1.96 / np.sqrt(len(log_price_daily))
+
+# Create the autocorrelation plot with Bartlett intervals
+plt.figure(figsize=(10, 6))
+plt.stem(np.arange(1, lags + 1), acf_values[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+plt.axhline(y=0, color='gray', linestyle='--')
+plt.axhline(y=Bart_Int, color='blue', linestyle='--')
+plt.axhline(y=-Bart_Int, color='blue', linestyle='--')
+plt.title('Autocorrelations of daily Prices (1997-2023)')
+plt.xlabel('Lag')
+plt.ylabel('ACF')
+plt.grid(True)
+
+# Save the plot in png format
+plt.savefig('LLY_ACF_pt.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Download Eli Lilly stock data for the specified period
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Extract daily log returns
+log_returns_daily = np.log(LLY['Adj Close'] / LLY['Adj Close'].shift(1))
+
+# Create a single figure and single subplot
+fig, ax = plt.subplots(figsize=(10, 10))
+
+# Plot of daily log returns
+ax.plot(log_returns_daily.index, log_returns_daily, color='red')
+ax.axhline(y=0, color='black', linestyle='--')
+ax.set_title('Log Daily Returns - Eli Lilly Stock (1997-2023)')
+ax.set_xlabel('Date')
+ax.set_ylabel(r'$r_t$', rotation=0, labelpad=15)
+ax.grid(True)
+
+# Add "Dec-Year" at the end of each year
+date_labels = pd.date_range(start="1997-12-31", end="2023-12-31", freq='YE-DEC')
+formatted_labels = [f'Dec-{date.year}' for date in date_labels]
+ax.set_xticks(date_labels)
+ax.set_xticklabels(formatted_labels, rotation=45)
+
+# Tight layout for spacing
+plt.tight_layout()
+
+# Save the plot in png format
+plt.savefig('Eli_Lilly_logret_1997_2023.2.png', format='png', bbox_inches='tight')
+
+# Display the plot
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Download Eli Lily stock data for the specified period
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Extract daily log returns
+log_returns_daily = np.log(LLY['Adj Close'] / LLY['Adj Close'].shift(1))
+
+
+monthly_data = LLY['Adj Close'].resample('ME').last()
+
+# Calculate monthly log returns (remove the first obs which is a NaN)
+log_returns_monthly = np.log(monthly_data / monthly_data.shift(1)).dropna()
+
+# Create a single figure and single subplot
+fig, ax = plt.subplots(figsize=(10, 10))
+
+# Plot of daily log returns
+ax.plot(log_returns_monthly.index, log_returns_monthly, color='red')
+ax.axhline(y=0, color='black', linestyle='--')
+ax.set_title('Log Monthly Returns - Eli Lilly Stock (1997-2023)')
+ax.set_xlabel('Date')
+ax.set_ylabel(r'$r_t$', rotation=0, labelpad=15)
+ax.grid(True)
+
+# Add "Dec-Year" at the end of each year
+date_labels = pd.date_range(start="1997-12-31", end="2023-12-31", freq='YE-DEC')
+formatted_labels = [f'Dec-{date.year}' for date in date_labels]
+ax.set_xticks(date_labels)
+ax.set_xticklabels(formatted_labels, rotation=45)
+
+# Tight layout for spacing
+plt.tight_layout()
+
+# Save the plot in png format
+plt.savefig('Eli_Lilly_monthlylogret_1997_2023.2.png', format='png', bbox_inches='tight')
+
+# Display the plot
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Download Eli Lilly stock data for the specified period
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Extract daily log returns
+log_returns_daily = np.log(LLY['Adj Close'] / LLY['Adj Close'].shift(1))
+
+log_returns_E = log_returns_daily - 0.04347
+
+
+
+# Create a single figure and single subplot
+fig, ax = plt.subplots(figsize=(10, 10))
+
+# Plot of daily log returns
+ax.plot(log_returns_E.index, log_returns_E, color='red')
+ax.axhline(y=0, color='black', linestyle='--')
+ax.set_title('Log Daily Returns - E(rt) - Eli Lilly Stock (1997-2023)')
+ax.set_xlabel('Date')
+ax.set_ylabel(r'$r_t$', rotation=0, labelpad=15)
+ax.grid(True)
+
+# Add "Dec-Year" at the end of each year
+date_labels = pd.date_range(start="1997-12-31", end="2023-12-31", freq='YE-DEC')
+formatted_labels = [f'Dec-{date.year}' for date in date_labels]
+ax.set_xticks(date_labels)
+ax.set_xticklabels(formatted_labels, rotation=45)
+
+# Tight layout for spacing
+plt.tight_layout()
+
+# Save the plot in png format
+plt.savefig('Eli_Lilly_logret_1997_2023.3.png', format='png', bbox_inches='tight')
+
+# Display the plot
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+
+returns_daily = np.log(LLY['Adj Close'] / LLY['Adj Close'].shift(1))
+
+returns_daily_1 = returns_daily.shift(1)
+
+
+df_returns = pd.DataFrame({
+    'returns_daily': returns_daily,
+    'returns_daily_1': returns_daily_1
+}).dropna()
+
+
+plt.figure(figsize=(10, 6))
+plt.scatter(df_returns['returns_daily'], df_returns['returns_daily_1'], color='blue', alpha=0.5)
+plt.axline((0, 0), slope=1, color='red', linestyle='--')  # Ligne diagonale y = x
+plt.title('Returns t vs t-1 for Eli Lilly (1997-2023)')
+plt.xlabel('Returns t')
+plt.ylabel('Returns t-1')
+plt.grid(True)
+
+
+plt.savefig('LLY_pt_d_1997_2023.5.png', format='png', bbox_inches='tight')
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+from statsmodels.tsa.stattools import acf
+from scipy.stats import norm
+
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+log_returns_daily = np.log(LLY['Adj Close'] / LLY['Adj Close'].shift(1)).dropna()
+
+
+lags = 40
+acf_values = acf(log_returns_daily, nlags=lags, fft=True)
+
+
+Bart_Int = 1.96 / np.sqrt(len(log_returns_daily))
+
+plt.figure(figsize=(10, 6))
+plt.stem(np.arange(1, lags + 1), acf_values[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+plt.axhline(y=0, color='gray', linestyle='--')
+plt.axhline(y=Bart_Int, color='blue', linestyle='--', label='Intervalle de Bartlett (95%)')
+plt.axhline(y=-Bart_Int, color='blue', linestyle='--')
+plt.title('Autocorrelation of retruns (1997-2023)')
+plt.xlabel('Décalage (Lag)')
+plt.ylabel('ACF')
+plt.legend()
+plt.grid(True)
+
+plt.savefig('LLY_ACF_pt.2.png', format='png', bbox_inches='tight')
+plt.show()
+
+# import repository (packages/libraries/modules)
+import pandas as pd # we rename pandas for convenience as pd
+import numpy as np
+import yfinance as yf
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from statsmodels.graphics.tsaplots import plot_acf # import this function from this submodule
+import statsmodels.api as sm
+import scipy.stats as stats
+from scipy.stats import gaussian_kde, norm, iqr, skew, kurtosis, jarque_bera, kstest, anderson
+from statsmodels.stats.diagnostic import lilliefors
+import scipy.signal as ss
+import pylab
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# extract the closing prices
+Pt_d_all = LLY["Adj Close"]
+Pt_d_all = Pt_d_all.rename('Pt.d')
+# mutate the Index into a DatetimeIndex
+Pt_d_all.index = pd.to_datetime(Pt_d_all.index)  
+Pt_d_all.head()
+
+pt_d_all = np.log(Pt_d_all)
+pt_d_all = pt_d_all.rename('pt.d')
+pt_d_all.head()
+
+pt_w_all = pt_d_all.resample('W').last()
+pt_m_all = pt_d_all.resample('M').last()
+pt_y_all = pt_d_all.resample('Y').last()
+# and rename them:
+pt_w_all = pt_w_all.rename('pt.w.all')
+pt_m_all = pt_m_all.rename('pt.m.all')
+pt_y_all = pt_y_all.rename('pt.y.all')
+
+rt_d_all_temp = pt_d_all.diff()
+rt_d_all_temp
+
+rt_d_all = pt_d_all.diff().dropna() #dropna remove the first NaN
+rt_w_all = pt_w_all.diff().dropna()  
+rt_m_all = pt_m_all.diff().dropna()     
+rt_y_all = pt_y_all.diff().dropna()      
+
+# and rename them: 
+rt_d_all = rt_d_all.rename('rt_d_all')
+rt_w_all = rt_w_all.rename('rt_w_all')
+rt_m_all = rt_m_all.rename('rt_m_all')
+rt_y_all = rt_y_all.rename('rt_y_all')
+rt_d_all.head()
+
+# define the interval of dates
+ss_start_date = pd.to_datetime('1997-12-31')
+ss_end_date = pd.to_datetime('2023-12-31')
+
+# Select the interval using loc (only for pandas series)
+Pt_d = Pt_d_all.loc[ss_start_date:ss_end_date]
+pt_d = pt_d_all.loc[ss_start_date:ss_end_date]
+pt_w = pt_w_all.loc[ss_start_date:ss_end_date]
+pt_m = pt_m_all.loc[ss_start_date:ss_end_date]
+rt_d = rt_d_all.loc[ss_start_date:ss_end_date]
+rt_m = rt_m_all.loc[ss_start_date:ss_end_date]
+rt_y = rt_y_all.loc[ss_start_date:ss_end_date]
+
+# Set up the subplots
+fig, axs = plt.subplots(1, 2, figsize=(18, 9))
+
+# Histogram and Normal Distribution (Daily)
+axs[0].hist(rt_d, bins=50, density=True, color="lightgreen")
+norm_y = stats.norm.pdf(np.linspace(rt_d.min(), rt_d.max()), loc=np.mean(rt_d), scale=np.std(rt_d))
+axs[0].plot(np.linspace(rt_d.min(), rt_d.max()), norm_y, color="blue", linewidth=1)
+axs[0].set_xlabel("daily log-return")
+axs[0].set_title("Histogram and Normal Distribution (Daily)")
+
+# Histogram and Normal Distribution (Monthly)
+axs[1].hist(rt_m, bins=50, density=True, color="lightblue")
+norm_y = stats.norm.pdf(np.linspace(rt_m.min(), rt_m.max()), loc=np.mean(rt_m), scale=np.std(rt_m))
+axs[1].plot(np.linspace(rt_m.min(), rt_m.max()), norm_y, color="red", linewidth=1)
+axs[1].set_xlabel("monthly log-return")
+axs[1].set_title("Histogram and Normal Distribution (Monthly)")
+
+# Adjust layout and display the plot
+plt.tight_layout()
+plt.savefig('LLY_histogram.png', format='png', bbox_inches='tight')
+plt.show()
+
+# Set up the subplots
+fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+
+# Probability Plot for Daily Returns
+stats.probplot(rt_d, dist="norm", plot=axs[0])
+axs[0].set_title("Probability Plot for Daily Returns")
+
+# Probability Plot for Monthly Returns
+stats.probplot(rt_m, dist="norm", plot=axs[1])
+axs[1].set_title("Probability Plot for Monthly Returns")
+
+# Adjust layout and display the plot
+plt.tight_layout()
+plt.savefig('LLY_qqplot.png', format='png', bbox_inches='tight')
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as stats
+import seaborn as sns
+
+
+# Download Eli Lilly data for the specified period
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Extract daily log-returns
+log_price_daily = np.log(LLY['Adj Close'])
+log_returns_daily = log_price_daily.diff().dropna()
+
+# Calculate monthly log-returns
+log_price_monthly = np.log(LLY['Adj Close']).resample('M').last()
+log_returns_monthly = log_price_monthly.diff().dropna()
+
+# Create the figure with four subplots
+fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+
+# Plot histogram of daily log-returns
+sns.histplot(log_returns_daily, bins=30, color='lime', edgecolor='black', kde_kws={'color': 'red'}, ax=axs[0, 0], stat='density')
+axs[0, 0].plot(np.linspace(log_returns_daily.min(), log_returns_daily.max(), 100),
+               stats.norm.pdf(np.linspace(log_returns_daily.min(), log_returns_daily.max(), 100),
+                              log_returns_daily.mean(), log_returns_daily.std()), color='red', linewidth=2)
+axs[0, 0].set_title('Histogram of Daily Log-Returns')
+axs[0, 0].set_xlabel('Log-Returns')
+axs[0, 0].set_ylabel('Density')
+
+# Plot histogram of monthly log-returns
+sns.histplot(log_returns_monthly, bins=30, color='lime', edgecolor='black', kde_kws={'color': 'red'}, ax=axs[0, 1], stat='density')
+axs[0, 1].plot(np.linspace(log_returns_monthly.min(), log_returns_monthly.max(), 100),
+               stats.norm.pdf(np.linspace(log_returns_monthly.min(), log_returns_monthly.max(), 100),
+                              log_returns_monthly.mean(), log_returns_monthly.std()), color='red', linewidth=2)
+axs[0, 1].set_title('Histogram of Monthly Log-Returns')
+axs[0, 1].set_xlabel('Log-Returns')
+axs[0, 1].set_ylabel('Density')
+
+# QQ plot of daily log-returns
+qqplot_axes = stats.probplot(log_returns_daily, dist="norm", plot=axs[1, 0])
+axs[1, 0].set_title('QQ Plot of Daily Log-Returns')
+axs[1, 0].set_xlabel('Normal Quantiles')
+axs[1, 0].set_ylabel('Sample Quantiles')
+
+# QQ plot of monthly log-returns
+qqplot_axes = stats.probplot(log_returns_monthly, dist="norm", plot=axs[1, 1])
+axs[1, 1].set_title('QQ Plot of Monthly Log-Returns')
+axs[1, 1].set_xlabel('Normal Quantiles')
+axs[1, 1].set_ylabel('Sample Quantiles')
+
+# Adjust spacing between plots
+plt.tight_layout()
+
+# Save the plot in png format
+plt.savefig('hist_qqplot_LLY.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as stats
+import seaborn as sns
+
+# Get LLY data
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Compute annual log-returns 
+log_returns_annual = np.log(LLY['Adj Close']).resample('Y').last().diff().dropna()
+
+# Compute mean and std
+mean_data = log_returns_annual.mean()
+sd_data = log_returns_annual.std()
+samp_size = len(log_returns_annual)
+seq_ind = np.arange(1, samp_size + 1, 1)
+emp_cdf = seq_ind / samp_size
+emp_cdf_2 = (seq_ind - 1) / samp_size
+my_data_ordered = np.sort(log_returns_annual)
+theor_cdf = stats.norm.cdf(my_data_ordered, mean_data, sd_data)
+
+# Set the layout
+fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+# Left panel: empirical and Normal cdf's
+sns.ecdfplot(log_returns_annual, ax=axs[0], label='Empirical CDF')
+axs[0].plot(np.linspace(log_returns_annual.min(), log_returns_annual.max(), 100),
+            stats.norm.cdf(np.linspace(log_returns_annual.min(), log_returns_annual.max(), 100),
+                           mean_data, sd_data),
+            color='red', linewidth=2, label='Normal CDF')
+axs[0].set_xlabel('LLY sorted annual log returns')
+axs[0].set_ylabel('CDF')
+axs[0].set_title('')
+axs[0].legend()
+
+# Right panel: Lilliefors test
+KS_L_stat1 = np.max(np.abs(emp_cdf - theor_cdf))
+KS_L_stat2 = np.max(np.abs(emp_cdf_2 - theor_cdf))
+KS_L_stat = max(KS_L_stat1, KS_L_stat2)
+axs[1].plot(my_data_ordered, np.abs(emp_cdf_2 - theor_cdf), color='blue', linewidth=1)
+axs[1].axhline(y=0.805/np.sqrt(samp_size), color='orange', linewidth=4, linestyle='--')
+axs[1].axhline(y=0.886/np.sqrt(samp_size), color='red', linewidth=4, linestyle='--')
+axs[1].axhline(y=1.031/np.sqrt(samp_size), color='darkred', linewidth=4, linestyle='--')
+axs[1].text(-0.5, 0.805/np.sqrt(samp_size)-0.006, '10% crit. value $KS_L$ = 0.161', fontsize=8, color='orange')
+axs[1].text(-0.5, 0.886/np.sqrt(samp_size)+0.002, '5% crit. value $KS_L$ = 0.1772', fontsize=8, color='red')
+axs[1].text(-0.5, 1.031/np.sqrt(samp_size)+0.002, '1% crit. value $KS_L$ = 0.2062', fontsize=8, color='darkred')
+axs[1].text(-0.5, 0.032, '$ G(\\tilde{x}_t)-\\Phi(\\tilde{x}_t, \\hat{\\mu}, \\hat{\\sigma}^2)$', fontsize=8)
+axs[1].set_xlabel('LLY sorted annual log returns')
+axs[1].set_ylabel('|GT(r ̃t) - Φ(r ̃t, μ, σ²)|')
+axs[1].set_title('')
+
+# Set the space within plots
+plt.tight_layout()
+
+# Save the figure in png format
+plt.savefig('lillie_test_LLYannual.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as stats
+import seaborn as sns
+
+# Get LLY data
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Compute daily log-returns 
+log_returns_daily = np.log(LLY['Adj Close'] / LLY['Adj Close'].shift(1))
+
+# Compute mean and std
+mean_data = log_returns_daily.mean()
+sd_data = log_returns_daily.std()
+samp_size = len(log_returns_daily)
+seq_ind = np.arange(1, samp_size + 1, 1)
+emp_cdf = seq_ind / samp_size
+emp_cdf_2 = (seq_ind - 1) / samp_size
+my_data_ordered = np.sort(log_returns_daily)
+theor_cdf = stats.norm.cdf(my_data_ordered, mean_data, sd_data)
+
+# Set the layout
+fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+# Left panel: empirical and Normal cdf's
+sns.ecdfplot(log_returns_daily, ax=axs[0], label='Empirical CDF')
+axs[0].plot(np.linspace(log_returns_daily.min(), log_returns_daily.max(), 100),
+            stats.norm.cdf(np.linspace(log_returns_daily.min(), log_returns_daily.max(), 100),
+                           mean_data, sd_data),
+            color='red', linewidth=2, label='Normal CDF')
+axs[0].set_xlabel('LLY sorted daily log returns')
+axs[0].set_ylabel('CDF')
+axs[0].set_title('')
+axs[0].legend()
+
+# Right panel: Lilliefors test
+KS_L_stat1 = np.max(np.abs(emp_cdf - theor_cdf))
+KS_L_stat2 = np.max(np.abs(emp_cdf_2 - theor_cdf))
+KS_L_stat = max(KS_L_stat1, KS_L_stat2)
+axs[1].plot(my_data_ordered, np.abs(emp_cdf_2 - theor_cdf), color='blue', linewidth=1)
+axs[1].axhline(y=0.805/np.sqrt(samp_size), color='orange', linewidth=4, linestyle='--')
+axs[1].axhline(y=0.886/np.sqrt(samp_size), color='red', linewidth=4, linestyle='--')
+axs[1].axhline(y=1.031/np.sqrt(samp_size), color='darkred', linewidth=4, linestyle='--')
+axs[1].text(-0.5, 0.805/np.sqrt(samp_size)-0.006, '10% crit. value $KS_L$ = 0.161', fontsize=8, color='orange')
+axs[1].text(-0.5, 0.886/np.sqrt(samp_size)+0.002, '5% crit. value $KS_L$ = 0.1772', fontsize=8, color='red')
+axs[1].text(-0.5, 1.031/np.sqrt(samp_size)+0.002, '1% crit. value $KS_L$ = 0.2062', fontsize=8, color='darkred')
+axs[1].text(-0.5, 0.032, '$ G(\\tilde{x}_t)-\\Phi(\\tilde{x}_t, \\hat{\\mu}, \\hat{\\sigma}^2)$', fontsize=8)
+axs[1].set_xlabel('LLY sorted annual log returns')
+axs[1].set_ylabel('|GT(r ̃t) - Φ(r ̃t, μ, σ²)|')
+axs[1].set_title('')
+
+# Set the space within plots
+plt.tight_layout()
+
+# Save the figure in png format
+plt.savefig('lillie_test_LLYannual.1.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as stats
+
+# Get Eli Lilly data
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Get daily log-returns
+log_returns_daily = np.log(LLY['Adj Close']).diff().dropna()
+
+
+# Get monthly log-returns
+log_returns_monthly = np.log(LLY['Adj Close']).resample('M').last().diff().dropna()
+
+# Get annual log-returns
+log_returns_annual = np.log(LLY['Adj Close']).resample('Y').last().diff().dropna()
+
+# Set the 3 QQ plots layout
+fig, axs = plt.subplots(3, 1, figsize=(8, 8))
+
+# Daily
+stats.probplot(log_returns_daily, dist='norm', plot=axs[0])
+axs[0].set_title('QQ Plot - Daily Returns')
+axs[0].set_xlabel(' Theorical Quantiles ')
+axs[0].set_ylabel('Ordered Values ')
+
+# Monthly
+stats.probplot(log_returns_monthly, dist='norm', plot=axs[1])
+axs[1].set_title('QQ Plot - Monthly Returns')
+axs[1].set_xlabel(' Theorical Quantiles ')
+axs[1].set_ylabel('Ordered Values ')
+
+# Annual
+stats.probplot(log_returns_annual, dist='norm', plot=axs[2])
+axs[2].set_title('QQ Plot - Annual Returns')
+axs[2].set_xlabel(' Theorical Quantiles ')
+axs[2].set_ylabel('Ordered Values ')
+
+# Set the space within plots
+plt.tight_layout()
+
+# Save the figure in png format
+plt.savefig('qqplot_LLYannual.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import numpy as np
+from statsmodels.tsa.stattools import acf
+
+# Get Eli Lilly daily prices
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Compute log-returns
+log_returns_daily = np.log(LLY['Adj Close']).diff().dropna()
+
+# Get monthly log-returns
+log_returns_monthly = np.log(LLY['Adj Close']).resample('M').last().diff().dropna()
+
+# Get annualy log-returns
+log_returns_annualy = np.log(LLY['Adj Close']).resample('Y').last().diff().dropna()
+
+# Compute the empirical ACF
+lags = 40
+lags_1=10
+acf_values_daily = acf(log_returns_daily, nlags=lags)
+
+# Compute the bartlet intervals
+confint = 1.96 / np.sqrt(len(log_returns_daily))
+confint_upper = np.full(lags, confint)
+confint_lower = -np.full(lags, confint)
+
+# Set the layout
+fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+
+# ACF of daily log-returns
+axs[0].stem(np.arange(1, lags + 1), acf_values_daily[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[0].axhline(y=0, color='gray', linestyle='--')
+axs[0].plot(np.arange(1, lags + 1), confint_upper, color='blue', linestyle='dashed')
+axs[0].plot(np.arange(1, lags + 1), confint_lower, color='blue', linestyle='dashed')
+axs[0].set_ylim(-0.1, 0.3)
+axs[0].set_title('ACF - Daily Log-Returns')
+axs[0].set_xlabel('Lag')
+axs[0].set_ylabel('ACF')
+axs[0].grid(True)
+
+# ACF of annualy log-returns
+acf_values_monthly = acf(log_returns_monthly, nlags=lags)
+confint_monthly = 1.96 / np.sqrt(len(log_returns_monthly))
+confint_monthly_upper = np.full(lags, confint_monthly)
+confint_monthly_lower = -np.full(lags, confint_monthly)
+
+axs[1].stem(np.arange(1, lags + 1), acf_values_monthly[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[1].axhline(y=0, color='gray', linestyle='--')
+axs[1].plot(np.arange(1, lags + 1), confint_monthly_upper, color='blue', linestyle='dashed')
+axs[1].plot(np.arange(1, lags + 1), confint_monthly_lower, color='blue', linestyle='dashed')
+axs[1].set_ylim(-0.1, 0.3)
+axs[1].set_title('ACF - Monthly Log-Returns')
+axs[1].set_xlabel('Lag')
+axs[1].set_ylabel('ACF')
+axs[1].grid(True)
+
+# ACF of annualy log-returns
+acf_values_annualy = acf(log_returns_annualy, nlags=lags_1)
+confint_annualy = 1.96 / np.sqrt(len(log_returns_annualy))
+confint_annualy_upper = np.full(lags_1, confint_annualy)
+confint_annualy_lower = -np.full(lags_1, confint_annualy)
+
+axs[2].stem(np.arange(1, lags_1 + 1), acf_values_annualy[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[2].axhline(y=0, color='gray', linestyle='--')
+axs[2].plot(np.arange(1, lags_1 + 1), confint_annualy_upper, color='blue', linestyle='dashed')
+axs[2].plot(np.arange(1, lags_1 + 1), confint_annualy_lower, color='blue', linestyle='dashed')
+axs[2].set_ylim(-0.4, 0.6)
+axs[2].set_title('ACF - Annualy Log-Returns')
+axs[2].set_xlabel('Lag')
+axs[2].set_ylabel('ACF')
+axs[2].grid(True)
+
+# Set the space
+plt.tight_layout()
+
+# Save the figure in png format
+plt.savefig('Eli Lilly_ACF_rt_dwm_1997_2023.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+lbbp_test_rt_d = sm.stats.acorr_ljungbox(rt_d, lags=[1], boxpierce=True)
+bp_stat = lbbp_test_rt_d['bp_stat'].iloc[0] # .iloc[0] to save only the value
+lb_stat = lbbp_test_rt_d['lb_stat'].iloc[0]
+bp_pval = lbbp_test_rt_d['bp_pvalue'].iloc[0]
+lb_pval = lbbp_test_rt_d['lb_pvalue'].iloc[0]
+print("Box-Pierce, lag=1:","Stat:",round(bp_stat,3),"- p-value:",round(bp_pval,3))
+print("Ljung-Box, lag=1:","Stat:",round(lb_stat,3),"- p-value:",round(lb_pval,3))
+
+lbbp_test_rt_d['bp_stat']
+
+lbbp_test_rt_d['bp_stat'].iloc[0]
+
+# Ljung-Box test lag = 5
+lbbp_test_rt_d_5 = sm.stats.acorr_ljungbox(rt_d, lags=[1, 2, 3, 4, 5], boxpierce=True)
+bp_stat5 = lbbp_test_rt_d['bp_stat'].iloc[0] # .iloc[0] to save only the value
+lb_stat5 = lbbp_test_rt_d['lb_stat'].iloc[0]
+bp_pval5 = lbbp_test_rt_d['bp_pvalue'].iloc[0]
+lb_pval5 = lbbp_test_rt_d['lb_pvalue'].iloc[0]
+
+print("Box-Pierce, lag=5:","Stat:",round(bp_stat5,3),"- p-value:",round(bp_pval5,3))
+print("Ljung-Box, lag=5:","Stat:",round(lb_stat5,3),"- p-value:",round(lb_pval5,3))
+
+my_max_lag = 15
+lags_all = np.arange(1, my_max_lag + 1)
+my_acf = sm.tsa.acf(rt_d, nlags=my_max_lag)
+my_acf_diameter = 1.96 / np.sqrt(len(rt_d))
+my_acf_tstat_0 = (my_acf[1:] - 0) / np.sqrt(1 / len(rt_d))
+my_LjungBox = sm.stats.diagnostic.acorr_ljungbox(rt_d, lags=lags_all, boxpierce=False)
+my_BoxPierce = sm.stats.diagnostic.acorr_ljungbox(rt_d, lags=lags_all, boxpierce=True)
+crit_value_5_BP = stats.chi2.ppf(0.95,lags_all)
+
+my_table_2 = np.column_stack((
+    lags_all,
+    my_acf[1:],
+    np.full(my_max_lag, my_acf_diameter),
+    my_acf_tstat_0,
+    my_BoxPierce['bp_stat'],
+    my_BoxPierce['bp_pvalue'],
+    my_LjungBox['lb_stat'],
+    my_LjungBox['lb_pvalue'],
+    np.full(my_max_lag, crit_value_5_BP)
+))
+column_names = ["lag", "acf", "acf diam.", "acf test", "B-P stat", "B-P pval", "L-B stat", "L-B pval", "crit"]
+my_table_df_2 = pd.DataFrame(data=my_table, columns=column_names)
+
+# Print the rounded table
+my_table_df_2 = my_table_df_2.round(3)
+my_table_df_2
+
+import pandas as pd
+import dataframe_image as dfi
+dfi.export(my_table_df_2 , 'dataframe2.png')
+
+lbbp_test_rt_m = sm.stats.acorr_ljungbox(rt_m, lags=[1], boxpierce=True)
+bp_stat = lbbp_test_rt_m['bp_stat'].iloc[0] # .iloc[0] to save only the value
+lb_stat = lbbp_test_rt_m['lb_stat'].iloc[0]
+bp_pval = lbbp_test_rt_m['bp_pvalue'].iloc[0]
+lb_pval = lbbp_test_rt_m['lb_pvalue'].iloc[0]
+print("Box-Pierce, lag=1:","Stat:",round(bp_stat,3),"- p-value:",round(bp_pval,3))
+print("Ljung-Box, lag=1:","Stat:",round(lb_stat,3),"- p-value:",round(lb_pval,3))
+
+lbbp_test_rt_m['bp_stat']
+
+lbbp_test_rt_m['bp_stat'].iloc[0]
+
+my_max_lag = 15
+lags_all = np.arange(1, my_max_lag + 1)
+my_acf = sm.tsa.acf(rt_d, nlags=my_max_lag)
+my_acf_diameter = 1.96 / np.sqrt(len(rt_m))
+my_acf_tstat_0 = (my_acf[1:] - 0) / np.sqrt(1 / len(rt_m))
+my_LjungBox = sm.stats.diagnostic.acorr_ljungbox(rt_m, lags=lags_all, boxpierce=False)
+my_BoxPierce = sm.stats.diagnostic.acorr_ljungbox(rt_m, lags=lags_all, boxpierce=True)
+crit_value_5_BP = stats.chi2.ppf(0.95,lags_all)
+
+my_table_1 = np.column_stack((
+    lags_all,
+    my_acf[1:],
+    np.full(my_max_lag, my_acf_diameter),
+    my_acf_tstat_0,
+    my_BoxPierce['bp_stat'],
+    my_BoxPierce['bp_pvalue'],
+    my_LjungBox['lb_stat'],
+    my_LjungBox['lb_pvalue'],
+    np.full(my_max_lag, crit_value_5_BP)
+))
+column_names = ["lag", "acf", "acf diam.", "acf test", "B-P stat", "B-P pval", "L-B stat", "L-B pval", "crit"]
+my_table_df_1 = pd.DataFrame(data=my_table, columns=column_names)
+
+# Print the rounded table
+my_table_df_1 = my_table_df_1.round(3)
+my_table_df_1
+
+import pandas as pd
+import dataframe_image as dfi
+dfi.export(my_table_df_1, 'dataframe_1.png')
+
+lbbp_test_rt_y = sm.stats.acorr_ljungbox(rt_y, lags=[1], boxpierce=True)
+bp_stat = lbbp_test_rt_y['bp_stat'].iloc[0] # .iloc[0] to save only the value
+lb_stat = lbbp_test_rt_y['lb_stat'].iloc[0]
+bp_pval = lbbp_test_rt_y['bp_pvalue'].iloc[0]
+lb_pval = lbbp_test_rt_y['lb_pvalue'].iloc[0]
+print("Box-Pierce, lag=1:","Stat:",round(bp_stat,3),"- p-value:",round(bp_pval,3))
+print("Ljung-Box, lag=1:","Stat:",round(lb_stat,3),"- p-value:",round(lb_pval,3))
+
+lbbp_test_rt_y['bp_stat']
+
+lbbp_test_rt_y['bp_stat'].iloc[0]
+
+my_max_lag = 15
+lags_all = np.arange(1, my_max_lag + 1)
+my_acf = sm.tsa.acf(rt_d, nlags=my_max_lag)
+my_acf_diameter = 1.96 / np.sqrt(len(rt_y))
+my_acf_tstat_0 = (my_acf[1:] - 0) / np.sqrt(1 / len(rt_y))
+my_LjungBox = sm.stats.diagnostic.acorr_ljungbox(rt_y, lags=lags_all, boxpierce=False)
+my_BoxPierce = sm.stats.diagnostic.acorr_ljungbox(rt_y, lags=lags_all, boxpierce=True)
+crit_value_5_BP = stats.chi2.ppf(0.95,lags_all)
+
+my_table = np.column_stack((
+    lags_all,
+    my_acf[1:],
+    np.full(my_max_lag, my_acf_diameter),
+    my_acf_tstat_0,
+    my_BoxPierce['bp_stat'],
+    my_BoxPierce['bp_pvalue'],
+    my_LjungBox['lb_stat'],
+    my_LjungBox['lb_pvalue'],
+    np.full(my_max_lag, crit_value_5_BP)
+))
+column_names = ["lag", "acf", "acf diam.", "acf test", "B-P stat", "B-P pval", "L-B stat", "L-B pval", "crit"]
+my_table_df = pd.DataFrame(data=my_table, columns=column_names)
+
+# Print the rounded table
+my_table_df = my_table_df.round(3)
+my_table_df
+
+pip install dataframe-image
+
+import pandas as pd
+import dataframe_image as dfi
+dfi.export(my_table_df, 'dataframe.png')
+
+import yfinance as yf
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import skew, kurtosis
+import pandas as pd 
+
+# Get Eli Lilly data
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+
+# Compute daily log-returns
+log_returns_daily = np.log(LLY['Adj Close']).diff().dropna()
+
+# set the rolling window equal to 252 days
+window_length = 252
+T = log_returns_daily.shape[0]
+
+# Create an empty matrix to store data
+roll_mom_manual = np.zeros((T, 5))
+
+# Run a for loop to fill the matrix with moments
+for i in range(window_length, T):
+    est_window = np.arange(i - window_length + 1, i + 1)
+    y = log_returns_daily[est_window]
+    
+    # compute the moments for each 
+    roll_mom_manual[i, 0] = np.mean(y)
+    roll_mom_manual[i, 1] = np.std(y, ddof=1)
+    roll_mom_manual[i, 2] = skew(y)
+    roll_mom_manual[i, 3] = kurtosis(y)
+    roll_mom_manual[i, 4] = np.mean((y - np.mean(y))**4)
+
+# Plot results of manually computed rolling mean
+mean_plot_man = roll_mom_manual[:, 0]
+mean_plot_man_ub = mean_plot_man + 1.96 * roll_mom_manual[:, 1] / np.sqrt(window_length)
+mean_plot_man_lb = mean_plot_man - 1.96 * roll_mom_manual[:, 1] / np.sqrt(window_length)
+
+data2plot_na = np.column_stack((mean_plot_man, mean_plot_man_lb, mean_plot_man_ub))
+
+data_index = log_returns_daily.index
+
+data2plot_na = pd.DataFrame({'Mean': mean_plot_man, 'LowerBound': mean_plot_man_lb, 'UpperBound': mean_plot_man_ub},
+                               index=data_index)
+
+# Select only rows without missing values
+data2plot = data2plot_na.dropna()
+# retrieve the data index
+data2plot
+
+# Customizing x-axis labels for December 31 of each year
+date_labels = pd.date_range(start='1997-12-31', end='2023-12-31', freq='A-DEC')
+# Show 1 tick every 3 years
+formatted_labels = [f'Dec-{date.year}' if date.year % 3 == 0 else '' for date in date_labels]
+# Add labels and rotate them 
+plt.xticks(date_labels, formatted_labels, rotation=45)
+
+
+# Plot the data
+plt.plot(data2plot.index, data2plot["Mean"] * 100, color='blue', linestyle='-', linewidth=2)
+plt.plot(data2plot.index, data2plot["LowerBound"] * 100, color='red', linestyle='-', linewidth=1)
+plt.plot(data2plot.index, data2plot["UpperBound"] * 100, color='red', linestyle='-', linewidth=1)
+plt.grid(True)
+plt.xlabel('')
+plt.ylabel('Mean (in percentage)')
+plt.title('Rolling mean (on 252 days) %')
+plt.axhline(0, linestyle='-', color='black', linewidth=1)  # Add a zero line
+
+
+plt.savefig('LLY_MEAN_rolling_1997_2023.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+# Skewess
+skew_plot = roll_mom_manual[:,2]
+skew_plot_ub = np.full(skew_plot.shape[0],+1.96*np.sqrt(6)/np.sqrt(window_length))
+skew_plot_lb = np.full(skew_plot.shape[0],-1.96*np.sqrt(6)/np.sqrt(window_length))
+
+data2plot_na = np.column_stack((skew_plot, skew_plot_lb, skew_plot_ub))
+
+data_index = log_returns_daily.index
+
+data2plot_na = pd.DataFrame({'Skewness': skew_plot, 'LowerBound': skew_plot_lb, 'UpperBound': skew_plot_ub},
+                               index=data_index)
+
+# Select only rows without missing values
+data2plot = data2plot_na.dropna()
+# retrieve the data index
+data2plot
+
+# Customizing x-axis labels for December 31 of each year
+date_labels = pd.date_range(start="1997-12-31", end="2023-12-31", freq='A-DEC')
+# Show 1 tick every 3 years
+formatted_labels = [f'Dec-{date.year}' if date.year % 3 == 0 else '' for date in date_labels]
+# Add labels and rotate them 
+plt.xticks(date_labels, formatted_labels, rotation=45)
+
+# Plot the data
+plt.plot(data2plot.index, data2plot["Skewness"], color='blue', linestyle='-', linewidth=2)
+plt.plot(data2plot.index, data2plot["LowerBound"], color='red', linestyle='-', linewidth=1)
+plt.plot(data2plot.index, data2plot["UpperBound"], color='red', linestyle='-', linewidth=1)
+plt.ylim(-4,2)
+plt.grid(True)
+plt.xlabel('')
+plt.ylabel('skewness')
+plt.title('Rolling skewness (on 252 days)')
+plt.axhline(0, linestyle='-', color='black', linewidth=1)  # Add a zero line
+
+
+plt.savefig('LLY_skew_rolling_1997_2023.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+# Kurtosis
+kurt_plot = roll_mom_manual[:,3]
+kurt_plot_ub = np.full(skew_plot.shape[0],3+1.96*np.sqrt(24)/np.sqrt(window_length))
+kurt_plot_lb = np.full(skew_plot.shape[0],3-1.96*np.sqrt(24)/np.sqrt(window_length))
+
+data2plot_na = np.column_stack((kurt_plot, kurt_plot_lb, kurt_plot_ub))
+
+data_index = log_returns_daily.index
+
+data2plot_na = pd.DataFrame({'Kurtosis': kurt_plot, 'LowerBound': kurt_plot_lb, 'UpperBound': kurt_plot_ub},
+                               index=data_index)
+
+# Select only rows without missing values
+data2plot = data2plot_na.dropna()
+# retrieve the data index
+data2plot
+
+# Customizing x-axis labels for December 31 of each year
+date_labels = pd.date_range(start='1997-12-31', end='2023-12-31', freq='A-DEC')
+# Show 1 tick every 3 years
+formatted_labels = [f'Dec-{date.year}' if date.year % 3 == 0 else '' for date in date_labels]
+# Add labels and rotate them 
+plt.xticks(date_labels, formatted_labels, rotation=45)
+
+# Plot the data
+plt.plot(data2plot.index, data2plot["Kurtosis"], color='blue', linestyle='-', linewidth=2)
+plt.plot(data2plot.index, data2plot["LowerBound"], color='red', linestyle='-', linewidth=1)
+plt.plot(data2plot.index, data2plot["UpperBound"], color='red', linestyle='-', linewidth=1)
+plt.ylim(-2,20)
+plt.grid(True)
+plt.xlabel('')
+plt.ylabel('kurtosis')
+plt.title('Rolling kurtosis (on 252 days)')
+
+
+plt.savefig('LLY_kurt_rolling_1997_2023.png', format='png', bbox_inches='tight')
+
+plt.show()
+
+# import repository (packages/libraries/modules)
+import pandas as pd # we rename pandas for convenience as pd
+import numpy as np
+import yfinance as yf
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from statsmodels.graphics.tsaplots import plot_acf # import this function from this submodule
+import statsmodels.api as sm
+import scipy.stats as stats
+from scipy.stats import gaussian_kde, norm, iqr, skew, kurtosis, jarque_bera, kstest, anderson
+from statsmodels.stats.diagnostic import lilliefors
+import scipy.signal as ss
+import pylab
+from statsmodels.tsa.stattools import acf
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+LLY
+
+# extract the closing prices
+Pt_d_all = LLY["Adj Close"]
+Pt_d_all = Pt_d_all.rename('Pt.d')
+# mutate the Index into a DatetimeIndex
+Pt_d_all.index = pd.to_datetime(Pt_d_all.index)  
+Pt_d_all.head()
+
+pt_d_all = np.log(Pt_d_all)
+pt_d_all = pt_d_all.rename('pt.d')
+pt_d_all.head()
+
+pt_w_all = pt_d_all.resample('W').last()
+pt_m_all = pt_d_all.resample('M').last()
+pt_y_all = pt_d_all.resample('Y').last()
+# and rename them:
+pt_w_all = pt_w_all.rename('pt.w.all')
+pt_m_all = pt_m_all.rename('pt.m.all')
+pt_y_all = pt_y_all.rename('pt.y.all')
+
+rt_d_all_temp = pt_d_all.diff()
+rt_d_all_temp
+
+rt_d_all = pt_d_all.diff().dropna() #dropna remove the first NaN
+rt_w_all = pt_w_all.diff().dropna()  
+rt_m_all = pt_m_all.diff().dropna()     
+rt_y_all = pt_y_all.diff().dropna()      
+
+# and rename them: 
+rt_d_all = rt_d_all.rename('rt_d_all')
+rt_w_all = rt_w_all.rename('rt_w_all')
+rt_m_all = rt_m_all.rename('rt_m_all')
+rt_y_all = rt_y_all.rename('rt_y_all')
+rt_d_all.head()
+
+# define the interval of dates
+ss_start_date = pd.to_datetime('1997-12-31')
+ss_end_date = pd.to_datetime('2023-12-31')
+
+# Select the interval using loc (only for pandas series)
+Pt_d = Pt_d_all.loc[ss_start_date:ss_end_date]
+pt_d = pt_d_all.loc[ss_start_date:ss_end_date]
+pt_w = pt_w_all.loc[ss_start_date:ss_end_date]
+pt_m = pt_m_all.loc[ss_start_date:ss_end_date]
+rt_d = rt_d_all.loc[ss_start_date:ss_end_date]
+rt_m = rt_m_all.loc[ss_start_date:ss_end_date]
+rt_y = rt_y_all.loc[ss_start_date:ss_end_date]
+
+
+# Compute the empirical ACF (squared)
+lags = 40
+lags_1=10
+acf_values_daily = acf(rt_d**2, nlags=lags)
+
+# Compute the bartlet intervals
+confint = 1.96 / np.sqrt(len(rt_d))
+confint_upper = np.full(lags, confint)
+confint_lower = -np.full(lags, confint)
+
+# Set the layout
+fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+
+# ACF of daily log-returns
+axs[0].stem(np.arange(1, lags + 1), acf_values_daily[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[0].axhline(y=0, color='gray', linestyle='--')
+axs[0].plot(np.arange(1, lags + 1), confint_upper, color='blue', linestyle='dashed')
+axs[0].plot(np.arange(1, lags + 1), confint_lower, color='blue', linestyle='dashed')
+axs[0].set_ylim(-0.1, 0.3)
+axs[0].set_title('ACF - Daily Squared Log-Returns')
+axs[0].set_xlabel('Lag')
+axs[0].set_ylabel('ACF')
+axs[0].grid(True)
+
+
+# ACF of squared monthly log-returns
+acf_values_monthly = acf(rt_m**2, nlags=lags)
+confint_monthly = 1.96 / np.sqrt(len(rt_m))
+confint_monthly_upper = np.full(lags, confint_monthly)
+confint_monthly_lower = -np.full(lags, confint_monthly)
+
+axs[1].stem(np.arange(1, lags + 1), acf_values_monthly[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[1].axhline(y=0, color='gray', linestyle='--')
+axs[1].plot(np.arange(1, lags + 1), confint_monthly_upper, color='blue', linestyle='dashed')
+axs[1].plot(np.arange(1, lags + 1), confint_monthly_lower, color='blue', linestyle='dashed')
+axs[1].set_ylim(-0.1, 0.3)
+axs[1].set_title('ACF - Monthly Squared Log-Returns')
+axs[1].set_xlabel('Lag')
+axs[1].set_ylabel('ACF')
+axs[1].grid(True)
+
+# ACF of squared weekly log-returns
+acf_values_annual = acf(rt_y**2, nlags=lags_1)
+confint_annual = 1.96 / np.sqrt(len(rt_y))
+confint_annual_upper = np.full(lags_1, confint_annual)
+confint_annual_lower = -np.full(lags_1, confint_annual)
+
+axs[2].stem(np.arange(1, lags_1 + 1), acf_values_annual[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[2].axhline(y=0, color='gray', linestyle='--')
+axs[2].plot(np.arange(1, lags_1 + 1), confint_annual_upper, color='blue', linestyle='dashed')
+axs[2].plot(np.arange(1, lags_1 + 1), confint_annual_lower, color='blue', linestyle='dashed')
+axs[2].set_ylim(-0.5, 0.5)
+axs[2].set_title('ACF - Annual Squared Log-Returns')
+axs[2].set_xlabel('Lag')
+axs[2].set_ylabel('ACF')
+axs[2].grid(True)
+
+# Set the space
+plt.tight_layout()
+
+plt.savefig('LLY_squared_returns.png', format='png', bbox_inches='tight')
+
+
+plt.show()
+
+# import repository (packages/libraries/modules)
+import pandas as pd # we rename pandas for convenience as pd
+import numpy as np
+import yfinance as yf
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from statsmodels.graphics.tsaplots import plot_acf # import this function from this submodule
+import statsmodels.api as sm
+import scipy.stats as stats
+from scipy.stats import gaussian_kde, norm, iqr, skew, kurtosis, jarque_bera, kstest, anderson
+from statsmodels.stats.diagnostic import lilliefors
+import scipy.signal as ss
+import pylab
+from statsmodels.tsa.stattools import acf
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+LLY
+
+# extract the closing prices
+Pt_d_all = LLY["Adj Close"]
+Pt_d_all = Pt_d_all.rename('Pt.d')
+# mutate the Index into a DatetimeIndex
+Pt_d_all.index = pd.to_datetime(Pt_d_all.index)  
+Pt_d_all.head()
+
+pt_d_all = np.log(Pt_d_all)
+pt_d_all = pt_d_all.rename('pt.d')
+pt_d_all.head()
+
+pt_w_all = pt_d_all.resample('W').last()
+pt_m_all = pt_d_all.resample('M').last()
+pt_y_all = pt_d_all.resample('Y').last()
+# and rename them:
+pt_w_all = pt_w_all.rename('pt.w.all')
+pt_m_all = pt_m_all.rename('pt.m.all')
+pt_y_all = pt_y_all.rename('pt.y.all')
+
+rt_d_all_temp = pt_d_all.diff()
+rt_d_all_temp
+
+rt_d_all = pt_d_all.diff().dropna() #dropna remove the first NaN
+rt_w_all = pt_w_all.diff().dropna()  
+rt_m_all = pt_m_all.diff().dropna()     
+rt_y_all = pt_y_all.diff().dropna()      
+
+# and rename them: 
+rt_d_all = rt_d_all.rename('rt_d_all')
+rt_w_all = rt_w_all.rename('rt_w_all')
+rt_m_all = rt_m_all.rename('rt_m_all')
+rt_y_all = rt_y_all.rename('rt_y_all')
+rt_d_all.head()
+
+# define the interval of dates
+ss_start_date = pd.to_datetime('1997-12-31')
+ss_end_date = pd.to_datetime('2023-12-31')
+
+# Select the interval using loc (only for pandas series)
+Pt_d = Pt_d_all.loc[ss_start_date:ss_end_date]
+pt_d = pt_d_all.loc[ss_start_date:ss_end_date]
+pt_w = pt_w_all.loc[ss_start_date:ss_end_date]
+pt_m = pt_m_all.loc[ss_start_date:ss_end_date]
+rt_d = rt_d_all.loc[ss_start_date:ss_end_date]
+rt_m = rt_m_all.loc[ss_start_date:ss_end_date]
+rt_y = rt_y_all.loc[ss_start_date:ss_end_date]
+# Compute the empirical ACF (abs)
+lags = 40
+lags_1 = 10
+acf_values_daily = acf(abs(rt_d), nlags=lags)
+
+# Compute the bartlet intervals
+confint = 1.96 / np.sqrt(len(rt_d))
+confint_upper = np.full(lags, confint)
+confint_lower = -np.full(lags, confint)
+
+# Set the layout
+fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+
+# ACF of daily log-returns
+axs[0].stem(np.arange(1, lags + 1), acf_values_daily[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[0].axhline(y=0, color='gray', linestyle='--')
+axs[0].plot(np.arange(1, lags + 1), confint_upper, color='blue', linestyle='dashed')
+axs[0].plot(np.arange(1, lags + 1), confint_lower, color='blue', linestyle='dashed')
+axs[0].set_ylim(-0.1, 0.3)
+axs[0].set_title('ACF - Daily Absolute Log-Returns')
+axs[0].set_xlabel('Lag')
+axs[0].set_ylabel('ACF')
+axs[0].grid(True)
+
+# ACF of abs monthly log-returns
+acf_values_monthly = acf(abs(rt_m), nlags=lags)
+confint_monthly = 1.96 / np.sqrt(len(rt_m))
+confint_monthly_upper = np.full(lags, confint_monthly)
+confint_monthly_lower = -np.full(lags, confint_monthly)
+
+axs[1].stem(np.arange(1, lags + 1), acf_values_monthly[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[1].axhline(y=0, color='gray', linestyle='--')
+axs[1].plot(np.arange(1, lags + 1), confint_monthly_upper, color='blue', linestyle='dashed')
+axs[1].plot(np.arange(1, lags + 1), confint_monthly_lower, color='blue', linestyle='dashed')
+axs[1].set_ylim(-0.1, 0.3)
+axs[1].set_title('ACF - Monthly Absolute Log-Returns')
+axs[1].set_xlabel('Lag')
+axs[1].set_ylabel('ACF')
+axs[1].grid(True)
+
+# ACF of abs weekly log-returns
+acf_values_annual = acf(abs(rt_y), nlags=lags_1)
+confint_annual = 1.96 / np.sqrt(len(rt_y))
+confint_annual_upper = np.full(lags_1, confint_annual)
+confint_annual_lower = -np.full(lags_1, confint_annual)
+
+axs[2].stem(np.arange(1, lags_1 + 1), acf_values_annual[1:], linefmt='k-', markerfmt='ko', basefmt='w-')
+axs[2].axhline(y=0, color='gray', linestyle='--')
+axs[2].plot(np.arange(1, lags_1 + 1), confint_annual_upper, color='blue', linestyle='dashed')
+axs[2].plot(np.arange(1, lags_1 + 1), confint_annual_lower, color='blue', linestyle='dashed')
+axs[2].set_ylim(-0.1, 0.6)
+axs[2].set_title('ACF - Annual Absolute Log-Returns')
+axs[2].set_xlabel('Lag')
+axs[2].set_ylabel('ACF')
+axs[2].grid(True)
+
+
+# Set the space
+plt.tight_layout()
+
+plt.savefig('LLY_absolute_returns.png', format='png', bbox_inches='tight')
+
+
+plt.show()
+
+# import repository (packages/libraries/modules)
+import pandas as pd # we rename pandas for convenience as pd
+import numpy as np
+import yfinance as yf
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from statsmodels.graphics.tsaplots import plot_acf # import this function from this submodule
+import statsmodels.api as sm
+import scipy.stats as stats
+from scipy.stats import gaussian_kde, norm, iqr, skew, kurtosis, jarque_bera, kstest, anderson
+from statsmodels.stats.diagnostic import lilliefors
+import scipy.signal as ss
+import pylab
+from statsmodels.tsa.stattools import acf
+
+LLY = yf.download("LLY", start="1997-12-31", end="2023-12-31")
+LLY
+
+# extract the closing prices
+Pt_d_all = LLY["Adj Close"]
+Pt_d_all = Pt_d_all.rename('Pt.d')
+# mutate the Index into a DatetimeIndex
+Pt_d_all.index = pd.to_datetime(Pt_d_all.index)  
+Pt_d_all.head()
+
+pt_d_all = np.log(Pt_d_all)
+pt_d_all = pt_d_all.rename('pt.d')
+pt_d_all.head()
+
+pt_w_all = pt_d_all.resample('W').last()
+pt_m_all = pt_d_all.resample('M').last()
+pt_y_all = pt_d_all.resample('Y').last()
+# and rename them:
+pt_w_all = pt_w_all.rename('pt.w.all')
+pt_m_all = pt_m_all.rename('pt.m.all')
+pt_y_all = pt_y_all.rename('pt.y.all')
+
+rt_d_all_temp = pt_d_all.diff()
+rt_d_all_temp
+
+rt_d_all = pt_d_all.diff().dropna() #dropna remove the first NaN
+rt_w_all = pt_w_all.diff().dropna()  
+rt_m_all = pt_m_all.diff().dropna()     
+rt_y_all = pt_y_all.diff().dropna()      
+
+# and rename them: 
+rt_d_all = rt_d_all.rename('rt_d_all')
+rt_w_all = rt_w_all.rename('rt_w_all')
+rt_m_all = rt_m_all.rename('rt_m_all')
+rt_y_all = rt_y_all.rename('rt_y_all')
+rt_d_all.head()
+
+# define the interval of dates
+ss_start_date = pd.to_datetime('1997-12-31')
+ss_end_date = pd.to_datetime('2023-12-31')
+
+# Select the interval using loc (only for pandas series)
+Pt_d = Pt_d_all.loc[ss_start_date:ss_end_date]
+pt_d = pt_d_all.loc[ss_start_date:ss_end_date]
+pt_w = pt_w_all.loc[ss_start_date:ss_end_date]
+pt_m = pt_m_all.loc[ss_start_date:ss_end_date]
+rt_d = rt_d_all.loc[ss_start_date:ss_end_date]
+rt_m = rt_m_all.loc[ss_start_date:ss_end_date]
+rt_y = rt_y_all.loc[ss_start_date:ss_end_date]
+# define the interval of dates
+ss_start_date3 = pd.to_datetime('1997-12-31')
+ss_end_date3 = pd.to_datetime('2023-12-31')
+
+# Select the interval using loc (only for pandas series)
+rt_d = rt_d_all.loc[ss_start_date3:ss_end_date3]
+rt_d
+# compute the squared returns
+rt_d2 = rt_d**2
+
+# define a function
+def ccf(x, y, lag_max = 100):
+    # compute correlation
+    result = ss.correlate(y - np.mean(y), x - np.mean(x), method='direct') / (np.std(y) * np.std(x) * len(y))
+    # define the length
+    length = (len(result) - 1) // 2
+    lo = length - lag_max
+    hi = length + (lag_max + 1)
+
+    return result[lo:hi]
+
+# choose the max lag and execute the function
+lag_max = 10
+cross_corr = ccf(rt_d,rt_d2,lag_max=lag_max)
+
+# plot results
+lags = np.arange(-lag_max, lag_max + 1)
+
+# ACF dei log-returns mensili con bande di confidenza
+confint_daily = 1.96 / np.sqrt(len(rt_d))
+confint_daily_upper = np.full(len(lags), confint_daily)
+confint_daily_lower = -np.full(len(lags), confint_daily)
+
+plt.figure(figsize=(8, 5))
+plt.stem(lags, cross_corr)
+plt.plot(lags, confint_daily_upper, color='green', linestyle='dashed')
+plt.plot(lags, confint_daily_lower, color='green', linestyle='dashed')
+plt.xlabel('Lag (days)')
+plt.ylabel('Cross-Correlation')
+plt.title('Cross-Correlation between daily $r_{t+j}$ and $r_t^2$')
+plt.grid(True)
+
+plt.savefig('LLY_Cross-Correlation.png', format='png', bbox_inches='tight')
+
+plt.show()
