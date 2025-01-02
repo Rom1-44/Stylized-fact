@@ -1,0 +1,14 @@
+mport numpy as np
+import matplotlib.pyplot as plt
+
+def simulate(trials=10, p=0.5):
+    x = np.random.rand(trials)
+    seq_up_down = np.sign(x - p) / np.sqrt(trials)
+    return np.cumsum(seq_up_down)
+
+# Plotting the simulation
+plt.plot(simulate(trials=1000, p=0.5), lw=0.5)
+plt.show()
+    
+for i in range(100):
+    plt.plot(simulate(trials=1000, p=.5), lw='.5')
