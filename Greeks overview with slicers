@@ -1,0 +1,154 @@
+# -*- coding: utf-8 -*-
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+import ipywidgets as widgets
+
+
+def Black_Scholes (S, sigma, T, r, K, Typeofoption):
+    d1 = (np.log(S/K) +((r  + (sigma**2)/2)*T)/(sigma*np.sqrt(T)))
+    d2 = d1 - sigma*np.sqrt(T)
+
+# Delta calculation    
+
+    if Typeofoption == 'Call' :
+        delta = norm.cdf(d1)
+    else :
+        delta = norm.cdf(d1) - 1 
+
+# Gamma Calculation
+
+    gamma = norm.pdf(d1) / (S*sigma*np.sqrt(T))
+    
+# Vega calculation 
+    
+    vega = S*np.sqrt(T)*norm.pdf(d1)
+
+# Theta calculation 
+    
+    if Typeofoption == 'Call':
+        theta = -((S*sigma*norm.pdf(d1)) / (2*np.sqrt(T))) - r*K*np.exp(-r*T)*norm.cdf(d2)
+    else :
+        theta = -((S*sigma*norm.pdf(d1)) / (2*np.sqrt(T))) + r*K*np.exp(-r*T)*norm.cdf(-d2)
+    
+    return delta, gamma, vega, theta
+
+
+style = {'description_width' : '150px'}
+layout =  widgets.Layout(width = '350px')
+
+S_slider = widgets.FloatSlider (value = 100 , min=0, max= 1000, step =5, descirption = 'Underlying Price (S)', style =style , layout =layout)
+
+K_slider = widgets.FloatSlider (value = 100 , min=0, max= 1000, step =5, descirption = 'Underlying Srike (K)', style =style , layout =layout)
+
+T_slider = widgets.FloatSlider (value = 1 , min=0.1, max= 5, step = 0.1, descirption = 'Maturity (T)', style =style , layout =layout)
+
+r_slider = widgets.FloatSlider (value = 0.05 , min=0, max=  0.05, step = 0.01, descirption = 'risk free rate (r)', style =style , layout =layout)
+
+sigma_slider = widgets.FloatSlider (value = 0.2 , min=0.1, max= 0.8, step = 0.01, descirption = 'Volatilité (sigma)', style =style , layout =layout)
+
+option_dropdown = widgets.Dropdown (options = ['Call','Put'], value = 'Call', description = 'Typeofoption', style=style, layout = layout )
+
+def update_plots (S, K, r, T, sigma, Typeofoption) : 
+    fig, axs = plt .subplots (1,4,figsize=(18,25))
+    plt.subplots_adjust (hspace = 0.3,wspace=0.3)
+    fig.patch.set_facecolor('black')
+    
+    s_values = np.linspace(S_slider.min,S_slider.max, 200)
+    
+    delta_vals = []
+    gamma_vals = []
+    vega_vals = []
+    theta_vals = []
+    for s_vals in s_values :
+        d , g , v , t = Black_Scholes(s_vals,sigma, T, r, K, Typeofoption) 
+        delta_vals.append(d)
+        gamma_vals.append(g)
+        vega_vals.append(v)
+        theta_vals.append(t)
+    
+    current_delta, current_gamma, current_vega, current_theta = Black_Scholes (S, sigma, T, r, K, Typeofoption)
+    
+    # Tracé de Delta
+    axs[0].plot(s_values, delta_vals, label="Delta", color='cyan')
+    axs[0].scatter(S, current_delta, color='red', label=f'Current: {current_delta:.4f}')
+    axs[0].set_title("Delta vs. Underlying Price", color='white')
+    axs[0].set_xlabel("Underlying Price (S)", color='white')
+    axs[0].set_ylabel("Delta", color='white')
+    axs[0].legend()
+    axs[0].grid(True, linestyle='--', alpha=0.5)
+    axs[0].tick_params(colors='white')
+
+    # Tracé de Gamma
+    axs[1].plot(s_values, gamma_vals, label="Gamma", color='yellow')
+    axs[1].scatter(S, current_gamma, color='red', label=f'Current: {current_gamma:.4f}')
+    axs[1].set_title("Gamma vs. Underlying Price", color='white')
+    axs[1].set_xlabel("Underlying Price (S)", color='white')
+    axs[1].set_ylabel("Gamma", color='white')
+    axs[1].legend()
+    axs[1].grid(True, linestyle='--', alpha=0.5)
+    axs[1].tick_params(colors='white')
+
+    # Tracé de Vega
+    axs[2].plot(s_values, vega_vals, label="Vega", color='magenta')
+    axs[2].scatter(S, current_vega, color='red', label=f'Current: {current_vega:.4f}')
+    axs[2].set_title("Vega vs. Underlying Price", color='white')
+    axs[2].set_xlabel("Underlying Price (S)", color='white')
+    axs[2].set_ylabel("Vega", color='white')
+    axs[2].legend()
+    axs[2].grid(True, linestyle='--', alpha=0.5)
+    axs[2].tick_params(colors='white')
+
+    # Tracé de Theta
+    axs[3].plot(s_values, theta_vals, label="Theta", color='green')
+    axs[3].scatter(S, current_theta, color='red', label=f'Current: {current_theta:.4f}')
+    axs[3].set_title("Theta vs. Underlying Price", color='white')
+    axs[3].set_xlabel("Underlying Price (S)", color='white')
+    axs[3].set_ylabel("Theta", color='white')
+    axs[3].legend()
+    axs[3].grid(True, linestyle='--', alpha=0.5)
+    axs[3].tick_params(colors='white')
+
+    # Affichage des graphes
+    plt.show()
+    
+
+calculate_button = widgets.Button(description='Claculate', button_style='success')
+
+import ipywidgets as widgets
+from IPython.display import display
+
+# Création du widget de sortie pour les plots
+plot_output = widgets.Output()
+
+# Fonction pour mettre à jour les graphiques lorsqu'on clique sur le bouton
+def on_calculate_button_clicked(b):
+    with plot_output:
+        plot_output.clear_output(wait=True)
+        update_plots(
+            S_slider.value, 
+            K_slider.value, 
+            T_slider.value, 
+            r_slider.value, 
+            sigma_slider.value, 
+            option_dropdown.value)
+
+# Création du bouton de calcul
+calculate_button = widgets.Button(description="Calculate Greeks")
+
+# Associer l'événement au bouton
+calculate_button.on_click(on_calculate_button_clicked)
+
+# Affichage initial des graphiques
+with plot_output:
+    update_plots(
+        S_slider.value,  
+        K_slider.value,  
+        T_slider.value,  
+        r_slider.value,  
+        sigma_slider.value,  
+        option_dropdown.value  # Correction du nom de la variable
+    )
+
+# Affichage des widgets
+display(S_slider, K_slider, T_slider, r_slider, sigma_slider, option_dropdown, calculate_button, plot_output)
