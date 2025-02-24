@@ -1,0 +1,97 @@
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from scipy.optimize import fsolve
+from yahooquery import Ticker
+
+def get_bond_data(ticker):
+    """ Récupère les infos de l'obligation depuis Yahoo Finance """
+    bond = Ticker(ticker)
+    bond_info = bond.summary_detail[ticker]
+    
+    try:
+        price = bond_info['regularMarketPrice']
+        coupon_rate = bond_info['couponRate'] / 100  # Convert to decimal
+        maturity_date = pd.to_datetime(bond_info['maturityDate'])
+        current_yield = bond_info.get('yield', None)  # Peut ne pas exister
+
+        return price, coupon_rate, maturity_date, current_yield
+    except KeyError:
+        print("Impossible de récupérer les infos de l'obligation.")
+        return None
+
+def bond_price(face_value, coupon_rate, ytm, years, freq=2):
+    """ Calcule le prix de l'obligation en actualisant les flux futurs """
+    coupon = (coupon_rate * face_value) / freq
+    periods = years * freq
+    discount_factors = [(1 + ytm / freq) ** (-t) for t in range(1, periods + 1)]
+    
+    # Somme des flux actualisés + valeur faciale actualisée
+    price = sum([coupon * df for df in discount_factors]) + face_value * discount_factors[-1]
+    return price
+
+def compute_ytm(face_value, price, coupon_rate, years, freq=2):
+    """ Estime le YTM en résolvant l'équation de prix de l'obligation """
+    def equation(ytm):
+        return bond_price(face_value, coupon_rate, ytm, years, freq) - price
+    
+    ytm_guess = 0.05  # On commence avec une hypothèse de 5%
+    ytm = fsolve(equation, ytm_guess)[0]
+    return ytm
+
+def compute_duration(face_value, coupon_rate, ytm, years, freq=2):
+    """ Calcule la duration de Macaulay et la duration modifiée """
+    coupon = (coupon_rate * face_value) / freq
+    periods = years * freq
+    discount_factors = [(1 + ytm / freq) ** (-t) for t in range(1, periods + 1)]
+    
+    weighted_cashflows = [t * coupon * df for t, df in enumerate(discount_factors, 1)]
+    total_weighted_cf = sum(weighted_cashflows) + (periods * face_value * discount_factors[-1])
+    
+    price = bond_price(face_value, coupon_rate, ytm, years, freq)
+    macaulay_duration = total_weighted_cf / price
+    modified_duration = macaulay_duration / (1 + ytm / freq)
+    
+    return macaulay_duration, modified_duration
+
+# 🔹 Exemple avec un ticker d'obligation d'État US (ex: 'US10Y' pour le 10 ans)
+ticker = "US10Y"
+data = get_bond_data(ticker)
+
+if data:
+    market_price, coupon_rate, maturity_date, current_yield = data
+    face_value = 1000  # Valeur nominale de l'obligation
+    years_to_maturity = (maturity_date - pd.Timestamp.today()).days / 365
+
+    # Calcul du YTM et des durations
+    ytm = compute_ytm(face_value, market_price, coupon_rate, years_to_maturity)
+    macaulay_duration, modified_duration = compute_duration(face_value, coupon_rate, ytm, years_to_maturity)
+
+    # Affichage des résultats
+    print(f" Informations sur l'obligation {ticker}:")
+    print(f" Prix du marché : {market_price:.2f} USD")
+    print(f" Coupon rate : {coupon_rate*100:.2f}%")
+    print(f" Maturité : {maturity_date.date()} ({years_to_maturity:.2f} ans restants)")
+    print(f" Yield to Maturity (YTM) : {ytm*100:.2f}%")
+    print(f" Duration de Macaulay : {macaulay_duration:.2f}")
+    print(f" Duration modifiée : {modified_duration:.2f}")
+    
+# 🔹 Données fictives pour une obligation à 10 ans avec coupon de 5%
+face_value = 1000  # Valeur nominale
+market_price = 1078.65  # Prix observé sur le marché
+coupon_rate = 0.05  # Coupon annuel (5%)
+years_to_maturity = 10  # Années restantes avant maturité
+freq = 2  # Paiement semestriel
+
+# Calcul du YTM
+ytm = compute_ytm(face_value, market_price, coupon_rate, years_to_maturity, freq)
+
+# Calcul des durations
+macaulay_duration, modified_duration = compute_duration(face_value, coupon_rate, ytm, years_to_maturity, freq)
+
+# 🔹 Résultats
+print(f" Prix du marché : {market_price:.2f} USD")
+print(f" Coupon rate : {coupon_rate*100:.2f}%")
+print(f" Yield to Maturity (YTM) : {ytm*100:.2f}%")
+print(f" Duration de Macaulay : {macaulay_duration:.2f}")
+print(f" Duration modifiée : {modified_duration:.2f}")
